@@ -2,19 +2,19 @@ import shutil
 import os.path
 
 def move_corresponding_txt_files(a_folder, b_folder, c_folder):
-    # 确保目标文件夹存在
+    # Make sure the desired folder exists
     if not os.path.exists(c_folder):
         os.makedirs(c_folder)
 
-    # 获取a文件夹中的所有jpg文件
+    # Get all the jpg files in the a folder
     jpg_files = [f for f in os.listdir(a_folder) if f.endswith('.jpg')]
 
     for jpg_file in jpg_files:
-        # 去掉扩展名得到文件名前缀
+        # Remove the extension to get the filename prefix
         file_prefix = os.path.splitext(jpg_file)[0]
         txt_file = f"{file_prefix}.txt"
 
-        # 遍历b文件夹中的子文件夹，寻找对应的txt文件
+        # Iterate over the subfolders in the b folder to find the corresponding txt file
         found = False
         for subfolder in os.listdir(b_folder):
             subfolder_path = os.path.join(b_folder, subfolder)

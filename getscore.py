@@ -8,23 +8,23 @@ from transformers import CLIPProcessor, CLIPModel
 
 if __name__ == '__main__':
     config_path = "FDDM.yaml"
-    config = OmegaConf.load(config_path)  # 加载配置文件
+    config = OmegaConf.load(config_path)  # Loading configuration files
     model = FDDM(**config.get("model").get("params", dict()))
 
-    fake_directory = f"/root/autodl-tmp/score_img"  # 替换为你需要的图像生成路径
-    txt_path_fake = f"/root/autodl-tmp/score_txt"  # 替换为你的文字保存路径
+    fake_directory = f"/root/autodl-tmp/score_img"  # paths for the Generated images
+    txt_path_fake = f"/root/autodl-tmp/score_txt"  # Path for saved the texts
 
     # FID
 
     real_directory = model.image_directory
-    model_path = "FID/pt_inception-2015-12-05-6726825d.pth"  # 权重文件路径
+    model_path = "google/inception_v3"  # Weight file path
 
     fid_value = calculate_fid_given_paths(
-        [real_directory, fake_directory],  # 两个路径列表
+        [real_directory, fake_directory],  # List of two paths
         model_path=model_path,
-        batch_size=64,  # 批量大小
-        device=torch.device("cuda"),  # 设备
-        dims=2048  # 特征维度,必须为2048
+        batch_size=64,
+        device=torch.device("cuda"),
+        dims=2048  # Feature dimension, must be 2048
     )
     print(f"FID Score: {fid_value:.4f}")
     with open("score.txt", "a") as file:
@@ -38,21 +38,20 @@ if __name__ == '__main__':
     clip_path = model.CLIP_path
     img_path_fake = fake_directory
 
-    clip_model = CLIPModel.from_pretrained(clip_path).to(device).eval()  # 加载CLIP模型和处理器（包含图像&文本编码器）
-    tokenizer = CLIPTokenizer.from_pretrained(clip_path)  # 分词器
-    transformer = CLIPTextModel.from_pretrained(clip_path).to(device).eval()  # 将文本编码为高维向量表示
+    clip_model = CLIPModel.from_pretrained(clip_path).to(device).eval()
+    tokenizer = CLIPTokenizer.from_pretrained(clip_path)
+    transformer = CLIPTextModel.from_pretrained(clip_path).to(device).eval()
     processor = CLIPProcessor.from_pretrained(clip_path)
 
     transform = Compose([
-        transforms.Resize((224, 224)),  # 调整图像大小
-        transforms.ToTensor()  # 将图像转换为张量
-        # transforms.Lambda(lambda t: (t * 2) - 1)  # 将张量的值从 [0, 1] 映射到 [-1, 1]
+        transforms.Resize((224, 224)),
+        transforms.ToTensor()
     ])
 
     dict_text_fake = get_d1ct_text(txt_path_fake)
     dataset_fake = txt3img_Dataset(img_path_fake, dict_text_fake, transform=transform, processor=processor)
     dataloader_fake = DataLoader(dataset_fake, batch_size=batch_size, shuffle=False)
-    # 计算生成数据CLIP Score
+    # Calculate the generated data CLIP Score
     fake_mean, fake_std = compute_clip_score(clip_model, dataloader_fake, device=device)
 
     print(f"Generated Data CLIP Score: Mean={fake_mean:.4f}, Std={fake_std:.4f}")
@@ -63,14 +62,14 @@ if __name__ == '__main__':
 
     device = "cuda"
     real_directory = '/root/data/train/flower/img/jpg'
-    model_path = "inception_v3_google-0cc3c7bd.pth"  # 替换为你的权重文件路径
+    model_path = "google/inception_v3"  # Replace with your weight file path
     model = get_model(model_path=model_path, device="cuda")
 
     path = fake_directory
     dataloader = get_dataloader(path=path, batch_size=64, num_workers=1)
-    # 计算类别概率
+    # Calculating class probabilities
     probs = get_probabilities(model=model, dataloader=dataloader, device=device)
-    # 计算IS
+    # Calculating IS
     is_score = inception_score(probs, num_splits=100)
     print(f"Inception Score: {is_score:.4f}")
     with open("score.txt", "a") as file:

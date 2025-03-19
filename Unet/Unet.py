@@ -15,7 +15,7 @@ class UNetModel(nn.Module):
         use_spatial_transformer=True,
         use_linear_in_transformer=True,
         transformer_depth=1,
-        context_dim=768,  # 与文本编码后的最后一个维度保持一致
+        context_dim=768,  # Be consistent with the last dimension after text encoding
 
         dropout=0,
         conv_resample=True,
@@ -25,11 +25,8 @@ class UNetModel(nn.Module):
         num_attention_blocks=None,
         disable_middle_self_attn=False,
 
-        # have_hyper=False,  # 默认不启用hypernetwork层
-        z_coef=0,    # 频域信息系数，范围1-0，0为纯sd，1为纯hyper
-        # z_in=6,
+        z_coef=0,
         z_dim=64,
-        # z_layer=6,
 
         **kwargs
     ):
@@ -46,10 +43,10 @@ class UNetModel(nn.Module):
         self.in_channels = in_channels
         self.model_channels = model_channels
         self.out_channels = out_channels
-        if isinstance(num_res_blocks, int):  # 每层均有num_res_blocks个残差块
+        if isinstance(num_res_blocks, int):
             self.num_res_blocks = len(channel_mult) * [num_res_blocks]
         else:
-            if len(num_res_blocks) != len(channel_mult):  # 每层分别有channel_mult个残差块
+            if len(num_res_blocks) != len(channel_mult):
                 raise ValueError("provide num_res_blocks either as an int (globally constant) or "
                                  "as a list/tuple (per-level) with the same length as channel_mult")
             self.num_res_blocks = num_res_blocks
@@ -63,12 +60,8 @@ class UNetModel(nn.Module):
         self.num_head_channels = num_head_channels
         self.dtype = torch.float16 if use_fp16 else torch.float32
 
-        # self.have_hyper = have_hyper
         self.z_coef = z_coef
         self.z_dim = z_dim
-
-        # if 0 < z_coef <= 1:
-        #     self.embed = ToVectorEmbedding(in_dim=z_in, out_dim=z_dim, layernum=z_layer)    # 额外信息系数大于1则添加编码层
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
@@ -212,13 +205,10 @@ class UNetModel(nn.Module):
 
     def forward(self, x, timesteps=None, context=None, z=None, **kwargs):
         hs = []
-        t_emb = timestep_embedding(timesteps, self.model_channels)  # 时间步编码
-        emb = self.time_embed(t_emb)  # 进一步处理，产生时间嵌入
+        t_emb = timestep_embedding(timesteps, self.model_channels)
+        emb = self.time_embed(t_emb)
 
-        # if (z is not None) and 0 < self.z_coef <= 1:  # 编码嵌入信息
-        #     z = self.embed(z)
-
-        h = x.type(self.dtype)  # h为特定数据类型的输入
+        h = x.type(self.dtype)
         for module in self.input_blocks:
             h = module(h, emb, context, z)
             hs.append(h)

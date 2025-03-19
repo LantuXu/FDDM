@@ -6,10 +6,10 @@ class HyperNetwork(nn.Module):
 
     def __init__(self, f_size=3, z_dim=64, out_size=16, in_size=16):
         super(HyperNetwork, self).__init__()
-        self.z_dim = z_dim  # 嵌入向量大小
-        self.f_size = f_size  # 卷积核大小
-        self.out_size = out_size  # 输出维度
-        self.in_size = in_size  # 输入维度
+        self.z_dim = z_dim  # Embedding vector size
+        self.f_size = f_size  # Kernel size
+        self.out_size = out_size  # Output dimension
+        self.in_size = in_size  # Input dimension
 
         self.w1 = Parameter(
             torch.fmod(torch.randn((self.z_dim, self.out_size * self.f_size * self.f_size)).cuda(), 2))

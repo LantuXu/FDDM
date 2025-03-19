@@ -47,9 +47,6 @@ class SpatialTransformer(nn.Module):
         b, c, h, w = x.shape
         x_in = x
         x = self.norm(x)
-        # print("((((((((((((((((((")
-        # print("use_linear", self.use_linear)  # true
-        # print("))))))))))))))))))")
         if not self.use_linear:
             x = self.proj_in(x)
         x = rearrange(x, 'b c h w -> b (h w) c').contiguous()

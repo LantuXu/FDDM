@@ -1,56 +1,54 @@
 model:
   params:
-    # 训练参数
-    time_steps: 1000  # 时间步长度，从1~1000开始
-    linear_start: 1e-4  # 线性beta的起点
-    linear_end: 2e-2  # 线性beta的终点
+    # Training parameters
+    time_steps: 1000  # Time step size, starting from 1 to 1000
+    linear_start: 1e-4  # The starting point for linear beta
+    linear_end: 2e-2  # The end point of linear beta
     base_learning_rate: 5.0e-5
     batch_size: 32
     epoch: 1000
     image_directory: '/root/data/train/flower/img/jpg'
     text_directory: '/root/data/train/flower/text_flower'
-    img_h: 256  # 图像的高
-    img_w: 256  # 图像的宽
-    vlb_Switch: True  # 是否重构ELBO损失
-    v_posterior: 0  # 超参，用于最优方差与完全前向方差的插值
+    img_h: 256  # Height of the image
+    img_w: 256  # Width of the image
+    vlb_Switch: True  # Whether or not to reconstruct the ELBO loss
+    v_posterior: 0  # Hyperparameter, used to interpolate the optimal variance with the full forward variance
     original_elbo_weight: 0
 
-    snap: 10  # 每多少代保留一次模型参数
-    out_path: "output"  # 输出图像的路径
-    out_num: 10  # 输出图像的数量
+    snap: 10  # Every generations retain model parameters
+    out_path: "output"  # Path to the output image
+    out_num: 10  # The number of output images
 
-    device: "cuda"  # 设备
-    pretrain_device: "cuda"  # 预训练模型的位置
+    device: "cuda"
+    pretrain_device: "cuda"  # Location of the pre-trained model
 
-    z_coef: 1          # 频域信息系数，范围1-0，0为纯sd，1为纯hyper
-    z_in: 6             # 额外嵌入信息的通道数
-    z_dim: 64           # 额外嵌入信息向量的大小
-    z_layer: 6          # 额外信息编码的卷积层数
-    mask_type: 1        # 决定掩码类型，1为高通滤波，保留高频，0为不做滤波处理，-1为低通滤波，保留低频
-    mask_radius: 50     # 滤波掩码半径，取决于图像尺寸
-    gaussian_mask: True    # 是否采用高斯掩码
-    gen_txt_path: "flower_gen.txt"    # 生成所用的txt文件的位置
+    z_coef: 1          # Frequency domain information coefficient, range from 0 to 1
+    z_in: 6             # Number of channels for additional embedded information
+    z_dim: 64           # The size of the additional embedding information vector
+    z_layer: 6          # Number of convolutional layers for extra information encoding
+    mask_type: 1        # Decide on the mask type: 1 is high-pass filtering, keeping high frequencies, 0 is no filtering, and -1 is low-pass filtering, keeping low frequencies
+    mask_radius: 50     # Filter mask radius, depending on image size
+    gaussian_mask: True    # Whether to use Gaussian mask or not
+    gen_txt_path: "flower_gen.txt"    # The location of the txt file used for generation
 
-    # DDIM参数
+    # DDIM parameter
     DDIM_Switch: True
-    DDIM_timesteps: 200  # DDIM采样所用的时间步,用于在DDPM的时间步中插值
-    DDIM_eta: 0  # 用于调整生成的确定性与不确定性，当eta=0时为确定性采样DDIM，当eta=1时为不确定采样表示DDPM，在0~1表示两种插值
-
-    # VAE参数
+    DDIM_timesteps: 200  # The time step used for DDIM sampling, is used to interpolate in the time step of DDPM
+    DDIM_eta: 0  # It is used to adjust the certainty and uncertainty of the generation
+    # VAE parameters
     VAE_Switch: True
-    VAE_path: '/root/pre_model/VAE/VAE.safetensors'
-    VAE_config_path: '/root/pre_model/VAE/config.json'
+    VAE_path: 'stabilityai/sd-vae-ft-mse'
+    VAE_config_path: ''
 
-    # CLIP参数
-    CLIP_Switch: True  # 只能开启，未设置非文本的训练接口
-    CLIP_path: '/root/pre_model/CLIP'
+    # CLIP parameter
+    CLIP_Switch: True  # Only enabled, non-text training interface is not set
+    CLIP_path: 'openai/clip-vit-base-patch32'
 
-    # Unet参数
+    # Unet parameters
     Unet_config:
       params:
         use_checkpoint: True
         use_fp16: True
-#        image_size: 32 # unused
         in_channels: 4
         out_channels: 4
         model_channels: 256
@@ -61,12 +59,12 @@ model:
         use_spatial_transformer: True
         use_linear_in_transformer: True
         transformer_depth: 1
-        context_dim: 768  # 与文本编码后的最后一个维度保持一致
+        context_dim: 768  # Be consistent with the last dimension after text encoding
         # Hyper
-        z_coef: 1  # 默认不启用hypernetwork层
-        z_in: 6             # 额外嵌入信息的通道数
-        z_dim: 64           # 额外嵌入信息向量的大小
-        z_layer: 6          # 额外信息编码的卷积层数
+        z_coef: 1  # The hypernetwork layer is not enabled by default
+        z_in: 6             # Number of channels for additional embedded information
+        z_dim: 64           # The size of the additional embedding information vector
+        z_layer: 6          # Number of convolutional layers for extra information encoding
 #        legacy: False
 
 

@@ -4,9 +4,9 @@ from omegaconf import OmegaConf
 if __name__ == '__main__':
 
     config_path = "FDDM.yaml"
-    config = OmegaConf.load(config_path)  # 加载配置文件
+    config = OmegaConf.load(config_path)  # Loading configuration files
     model = FDDM(**config.get("model").get("params", dict()))
 
-    # 训练模型
+    # Training the model
     model.train_step()
 
